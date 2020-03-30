@@ -1,6 +1,7 @@
 from obsidian.shapes import Circle, Rectangle
 from obsidian.style import Style
 from obsidian.group import Group
+from obsidian.infix import EQ
 
 from pysmt.shortcuts import Equals, Real
 
@@ -21,14 +22,16 @@ square = Rectangle.new(Style(None))
 #     square.width == circle.radius * 2**0.5
 # ])
 
+print(type(circle.bounds.center.x), type(bg.bounds.center.x))
+
 g = Group([bg, circle, square], [
-    Equals(circle.bounds.center.x, bg.bounds.center.x),
-    Equals(circle.bounds.center.x, square.bounds.center.x),
-    Equals(circle.bounds.center.y, bg.bounds.center.y),
-    Equals(circle.bounds.center.y, square.bounds.center.y),
-    Equals(circle.radius, Real(width/4)),
-    Equals(square.width, square.height),
-    Equals(square.width, circle.radius * 2**0.5)
+    circle.bounds.center.x |EQ| bg.bounds.center.x,
+    circle.bounds.center.x |EQ| square.bounds.center.x,
+    circle.bounds.center.y |EQ| bg.bounds.center.y,
+    circle.bounds.center.y |EQ| square.bounds.center.y,
+    circle.radius |EQ| Real(width/4),
+    square.width |EQ| square.height,
+    square.width |EQ| circle.radius * 2**0.5
 ])
 
 print()
@@ -41,7 +44,5 @@ print(s)
 
 print()
 
-print(s[square.x].constant_value())
-print(s[square.y].constant_value())
-print(s[square.width].constant_value())
-print(s[square.height].constant_value())
+for var in (square.x, square.y, square.width, square.height):
+    print(float(s[var].constant_value()))

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pysmt.shortcuts import Real, FreshSymbol, And
+from pysmt.shortcuts import Real, FreshSymbol, And, Equals
 from pysmt.typing import REAL
 
 from .style import Style
@@ -15,9 +15,6 @@ class Point:
     def new(cls, x=None, y=None):
         return cls(FreshSymbol(REAL) if x is None else Real(x),
                    FreshSymbol(REAL) if y is None else Real(y))
-
-    def __eq__(self, other):
-        return And(self.x == other.x, self.y == other.y)
 
 
 @dataclass

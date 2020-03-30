@@ -64,6 +64,7 @@ class Circle:
     x: REAL
     y: REAL
     radius: REAL
+    style: Style
 
     @classmethod
     def new(cls, style):

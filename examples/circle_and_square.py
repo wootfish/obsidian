@@ -3,7 +3,7 @@ from obsidian.shapes import Circle, Rectangle
 from obsidian.group import Group
 from obsidian.infix import EQ
 
-from pysmt.shortcuts import Equals, Real
+from pysmt.shortcuts import Real
 
 bg_style = {"fill": "#e0e0e0"}
 circ_style = {"stroke": "#0000ff", "fill_opacity": "0"}

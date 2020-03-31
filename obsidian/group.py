@@ -15,13 +15,14 @@ class Group:
         # however, we can't leave these groups in self.shapes because we want it to have uniform type
         # so we filter the groups out here and merge their shape & constraint lists with our existing ones
         groups = [group for group in self.shapes if isinstance(group, Group)]
-        self.shapes = [shape for shape in self.shapes if not isinstance(shape, Shape)]
+        self.shapes = [shape for shape in self.shapes if not isinstance(shape, Group)]
         for group in groups:
             self.shapes += group.shapes
             self.constraints += group.constraints
 
     @property
     def bounds(self):
+        print(self, self.shapes)
         left_edge   = Min(shape.bounds.left_edge   for shape in self.shapes)
         right_edge  = Max(shape.bounds.right_edge  for shape in self.shapes)
         top_edge    = Min(shape.bounds.top_edge    for shape in self.shapes)

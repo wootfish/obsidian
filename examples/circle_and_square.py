@@ -1,18 +1,21 @@
+from obsidian.canvas import Canvas
 from obsidian.shapes import Circle, Rectangle
-from obsidian.style import Style
 from obsidian.group import Group
 from obsidian.infix import EQ
 
 from pysmt.shortcuts import Equals, Real
 
+bg_style = {"fill": "#e0e0e0"}
+circ_style = {"stroke": "#0000ff", "fill_opacity": "0"}
+rect_style = {"stroke": "#ff0000", "fill_opacity": "0"}
 
 width = 300
 height = 300
 
-bg = Rectangle.from_corner(0, 0, width, height, Style(None))
+bg = Rectangle.from_corner(0, 0, width, height, bg_style)
 
-circle = Circle.new(Style(None))
-square = Rectangle.new(Style(None))
+circle = Circle.new(circ_style)
+square = Rectangle.new(rect_style)
 
 g = Group([bg, circle, square], [
     circle.bounds.center.x |EQ| bg.bounds.center.x,
@@ -48,3 +51,10 @@ for label, var in zip('xyr', (circle.x, circle.y, circle.radius)):
     print('    ' + label + ':', float(s[var].constant_value()))
 
 print()
+
+
+print("\n==== Rendering...")
+canvas = Canvas(g, width, height)
+canvas.render()
+canvas.save_png("/tmp/test.png")
+print("Saved to /tmp/test.png")

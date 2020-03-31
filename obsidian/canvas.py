@@ -53,8 +53,10 @@ class Canvas:
         if self.rendered is None:
             self.render()
         self.rendered.saveSvg(fname)
+        print("Wrote", fname)
 
     def save_png(self, fname):
         if self.rendered is None:
             self.render()
         self.rendered.savePng(fname)
+        print("Wrote", fname)

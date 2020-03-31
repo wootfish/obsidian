@@ -1,5 +1,7 @@
 # obsidian
 
+You will need Python 3.7 or higher.
+
 Setup instructions:
 
 ```

@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from typing import Dict, Any
 
 from pysmt.shortcuts import Real, FreshSymbol, And, Equals
 from pysmt.typing import REAL
 
-from .style import Style
+
+STYLE = Dict[str, Any]
 
 
 @dataclass
@@ -34,7 +36,7 @@ class Rectangle:
     y: REAL
     width: REAL
     height: REAL
-    style: Style
+    style: STYLE
 
     @classmethod
     def new(cls, style):
@@ -61,7 +63,7 @@ class Circle:
     x: REAL
     y: REAL
     radius: REAL
-    style: Style
+    style: STYLE
 
     @classmethod
     def new(cls, style):

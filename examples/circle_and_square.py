@@ -12,10 +12,10 @@ rect_style = {"stroke": "#ff0000", "fill_opacity": "0"}
 width = 300
 height = 300
 
-bg = Rectangle.from_corner(0, 0, width, height, bg_style)
+bg = Rectangle(0, 0, width, height, bg_style)
 
-circle = Circle.new(circ_style)
-square = Rectangle.new(rect_style)
+circle = Circle(style=circ_style)
+square = Rectangle(style=rect_style)
 
 g = Group([bg, circle, square], [
     circle.bounds.center.x |EQ| bg.bounds.center.x,

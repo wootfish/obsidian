@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from typing import List
 from pysmt.shortcuts import get_model, And, Min, Max
 
-from .shapes import Bounds
+from .shapes import Bounds, Shape
 
 
 @dataclass
 class Group:
-    shapes: List
-    constraints: List
+    shapes: List[Shape]
+    constraints: List  # of pysmt constraints
 
     @property
     def bounds(self):
@@ -24,7 +24,7 @@ class Group:
 
     def solve(self):
         model = get_model(And(self.constraints))
-        return model  # TODO more
+        return model  # TODO more (eg make solver configurable, detect when there are multiple solutions, draw in extra constraints if we decide to add any ways of specifying those)
 
     @classmethod
     def from_groups(cls, *groups):

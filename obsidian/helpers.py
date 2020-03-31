@@ -1,4 +1,6 @@
 from obsidian.align import top_align, left_align
+from obsidian.group import Group
+from obsidian.infix import EQ
 
 
 def shape_grid(w, h, spacing, factory):
@@ -23,6 +25,7 @@ def shape_grid(w, h, spacing, factory):
     # align rows and columns
     for row in grid:
         constraints += top_align(row)
+
     for col in range(w):
         constraints += left_align(row[col] for row in grid)
 
@@ -31,10 +34,10 @@ def shape_grid(w, h, spacing, factory):
     first_col = [row[0] for row in grid]
 
     for a, b in zip(first_row, first_row[1:]):
-        constraints.append(b.left_edge |EQ| a.right_edge + spacing)
+        constraints.append(b.bounds.left_edge |EQ| a.bounds.right_edge + spacing)
 
     for a, b in zip(first_col, first_col[1:]):
-        constraints.append(b.top_edge |EQ| a.bottom_edge + spacing)
+        constraints.append(b.bounds.top_edge |EQ| a.bounds.bottom_edge + spacing)
 
     # flatten the grid
     shapes = [shape for row in grid for shape in row]

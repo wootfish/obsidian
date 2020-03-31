@@ -25,3 +25,9 @@ class Group:
     def solve(self):
         model = get_model(And(self.constraints))
         return model  # TODO more
+
+    @classmethod
+    def from_groups(cls, *groups):
+        shapes = [shape for group in groups for shape in group.shapes]
+        constraints = [constraint for group in groups for constraint in group.constraints]
+        return cls(shapes, constraints)

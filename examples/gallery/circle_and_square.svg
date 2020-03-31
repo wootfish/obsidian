@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="300" height="300" viewBox="0 -300 300 300">
+<defs>
+</defs>
+<rect x="0.0" y="-300.0" width="300.0" height="300.0" fill="#e0e0e0" />
+<circle cx="150.0" cy="-150.0" r="75.0" stroke="#0000ff" fill-opacity="0" />
+<rect x="96.96699141100893" y="-203.03300858899107" width="106.06601717798213" height="106.06601717798213" stroke="#ff0000" fill-opacity="0" />
+</svg>

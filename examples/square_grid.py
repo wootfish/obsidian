@@ -1,4 +1,4 @@
-from random import choice
+from random import Random
 
 from obsidian.align import top_align, left_align
 from obsidian.canvas import Canvas
@@ -7,13 +7,16 @@ from obsidian.group import Group
 from obsidian.infix import EQ
 
 
+choice = Random(3**20 % (2**20-1)).choice  # arbitrary nontrivial constant seed
+
+
 width = 300
 height = 300
 
 
 BG = "#000000"
-ZERO = "#1010AA"
-ONE = "#AA1010"
+RED = "#AA1010"
+BLUE = "#3030AA"
 
 
 def square_grid(w, h, size, spacing):
@@ -45,7 +48,7 @@ bg = Rectangle(0, 0, width, height, {"fill": BG})
 
 squares = square_grid(w=20, h=20, size=10, spacing=3)
 for square in squares.shapes:
-    square.style = {"fill": choice((ZERO, ONE))}
+    square.style = {"fill": choice((RED, BLUE))}
 
 
 g = Group([squares, bg], [
@@ -56,5 +59,5 @@ g = Group([squares, bg], [
 
 print("Working...")
 canvas = Canvas(g, width, height)
-canvas.save_png("/tmp/test.png")
-print("Saved to /tmp/test.png")
+canvas.save_png("gallery/square_grid.png")
+canvas.save_svg("gallery/square_grid.svg")

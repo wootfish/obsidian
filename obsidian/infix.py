@@ -10,7 +10,13 @@ infix? if we're doing that, should we rename this file?
 
 __all__ = ['AND', 'OR', 'EQ', 'NE']
 
-from pysmt.shortcuts import And, Or, Not, Equals, NotEquals
+
+from functools import wraps
+from numbers import Real as ABCReal
+
+from pysmt.shortcuts import And, Or, Not, Equals, NotEquals, Real
+
+from obsidian.wrap import wrap_real
 
 
 class Infix:
@@ -38,7 +44,14 @@ class Infix:
         return self.f(other)
 
 
-AND = Infix(And)
-OR = Infix(Or)
-EQ = Infix(Equals)
-NE = Infix(NotEquals)
+def real_wrapper(f):
+    @wraps(f)
+    def wrapper(lhs, rhs):
+        return f(wrap_real(lhs), wrap_real(rhs))
+    return wrapper
+
+
+AND = Infix(real_wrapper(And))
+OR = Infix(real_wrapper(Or))
+EQ = Infix(real_wrapper(Equals))
+NE = Infix(real_wrapper(NotEquals))

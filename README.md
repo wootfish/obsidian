@@ -2,6 +2,8 @@
 
 You will need Python 3.7 or higher.
 
+You will also need Cairo, which can be installed with `sudo apt install libcairo2`, `brew install cairo`, or similar.
+
 Setup instructions:
 
 ```

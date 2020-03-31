@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from pysmt.shortcuts import get_model, And, Min, Max
 
-from .shapes import Bounds, Shape
+from .shapes import Bounds, Shape, Point
 
 
 @dataclass
@@ -22,7 +22,6 @@ class Group:
 
     @property
     def bounds(self):
-        print(self, self.shapes)
         left_edge   = Min(shape.bounds.left_edge   for shape in self.shapes)
         right_edge  = Max(shape.bounds.right_edge  for shape in self.shapes)
         top_edge    = Min(shape.bounds.top_edge    for shape in self.shapes)
@@ -35,4 +34,8 @@ class Group:
 
     def solve(self):
         model = get_model(And(self.constraints))
-        return model  # TODO more (eg make solver configurable, detect when there are multiple solutions, draw in extra constraints if we decide to add any ways of specifying those)
+        return model  # TODO more, eg:
+                      # - make solver configurable
+                      # - detect & warn when there are multiple solutions
+                      # - bring in extra constraints (if we decide to add any ways of specifying those)
+                      # - maybe cache result?

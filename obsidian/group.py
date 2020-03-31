@@ -10,6 +10,16 @@ class Group:
     shapes: List[Shape]
     constraints: List  # of pysmt constraints
 
+    def __post_init__(self):
+        # for convenience, we want to let the caller pass groups in alongside shapes
+        # however, we can't leave these groups in self.shapes because we want it to have uniform type
+        # so we filter the groups out here and merge their shape & constraint lists with our existing ones
+        groups = [group for group in self.shapes if isinstance(group, Group)]
+        self.shapes = [shape for shape in self.shapes if not isinstance(shape, Shape)]
+        for group in groups:
+            self.shapes += group.shapes
+            self.constraints += group.constraints
+
     @property
     def bounds(self):
         left_edge   = Min(shape.bounds.left_edge   for shape in self.shapes)
@@ -25,9 +35,3 @@ class Group:
     def solve(self):
         model = get_model(And(self.constraints))
         return model  # TODO more (eg make solver configurable, detect when there are multiple solutions, draw in extra constraints if we decide to add any ways of specifying those)
-
-    @classmethod
-    def from_groups(cls, *groups):
-        shapes = [shape for group in groups for shape in group.shapes]
-        constraints = [constraint for group in groups for constraint in group.constraints]
-        return cls(shapes, constraints)

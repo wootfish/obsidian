@@ -2,7 +2,7 @@ from dataclasses import dataclass, field, fields
 from numbers import Real as ABCReal
 from typing import Dict, Any
 
-from pysmt.shortcuts import Real, FreshSymbol, And, Equals
+from pysmt.shortcuts import Real, FreshSymbol, And, Equals, Min, Max, Abs
 from pysmt.typing import REAL
 
 from obsidian.wrap import wrap_real
@@ -14,6 +14,7 @@ STYLE = Dict[str, Any]
 # yo dawg i heard you like factories...
 def SMTField(): return field(default_factory=lambda: FreshSymbol(REAL))
 def StyleField(): return field(default_factory=dict)
+def PointField(): return field(default_factory=Point)
 
 
 class Shape:
@@ -46,9 +47,13 @@ class Bounds:
     right_edge: REAL = SMTField()
     top_edge: REAL = SMTField()
     bottom_edge: REAL = SMTField()
-    width: REAL = SMTField()
-    height: REAL = SMTField()
-    center: Point = field(default_factory=Point)
+
+    def __post_init__(self):
+        self.width = self.right_edge - self.left_edge
+        self.height = self.bottom_edge - self.top_edge
+        center_x = (self.left_edge + self.right_edge) / 2
+        center_y = (self.top_edge + self.bottom_edge) / 2
+        self.center = Point(center_x, center_y)
 
 
 @dataclass
@@ -65,8 +70,7 @@ class Rectangle(Shape):
         top_edge, bottom_edge = self.y, self.y + self.height
         center_x = (left_edge + right_edge) / Real(2)
         center_y = (top_edge + bottom_edge) / Real(2)
-        return Bounds(left_edge, right_edge, top_edge, bottom_edge,
-                self.width, self.height, Point(center_x, center_y))
+        return Bounds(left_edge, right_edge, top_edge, bottom_edge)
 
 
 @dataclass
@@ -81,5 +85,4 @@ class Circle(Shape):
         left_edge, right_edge = self.x - self.radius, self.x + self.radius
         top_edge, bottom_edge = self.y - self.radius, self.y + self.radius
         diameter = 2 * self.radius
-        return Bounds(left_edge, right_edge, top_edge, bottom_edge,
-                diameter, diameter, Point(self.x, self.y))
+        return Bounds(left_edge, right_edge, top_edge, bottom_edge)

@@ -3,6 +3,11 @@ from obsidian.group import Group
 from obsidian.infix import EQ
 
 
+def N(sym):
+    """Returns raw numeric value for solved symbol."""
+    return float(sym.constant_value())
+
+
 def shape_grid(w, h, spacing, factory):
     """
     Returns a Group containing a grid of shapes with `h` rows and `w` columns.

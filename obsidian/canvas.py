@@ -1,16 +1,13 @@
 from dataclasses import dataclass
 from obsidian.group import Group
-from obsidian.shapes import Rectangle, Circle
+from obsidian.helpers import N
+from obsidian.shapes import Rectangle, Circle, Line
 
 import drawSvg as draw
 
 
-def N(sym):
-    """Returns raw numeric value for solved symbol."""
-    return float(sym.constant_value())
-
-
 def render_rect(rect, model, target):
+    assert len(rect.style) > 0
     x = N(model[rect.x])
     y = N(model[rect.y])
     w = N(model[rect.width])
@@ -19,15 +16,24 @@ def render_rect(rect, model, target):
 
 
 def render_circle(circle, model, target):
+    assert len(circle.style) > 0
     x = N(model[circle.x])
     y = N(model[circle.y])
     r = N(model[circle.radius])
     target.append(draw.Circle(x, y, r, **circle.style))
 
 
+def render_line(line, model, target):
+    assert len(line.style) > 0
+    x1, y1 = line.pt1.x, line.pt1.y
+    x2, y2 = line.pt2.x, line.pt2.y
+    target.append(draw.Line(x1, y1, x2, y2, **line.style))
+
+
 renderers = {
     Rectangle: render_rect,
-    Circle: render_circle
+    Circle: render_circle,
+    Line: render_line,
 }
 
 

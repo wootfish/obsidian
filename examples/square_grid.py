@@ -1,7 +1,7 @@
 from random import Random
 choice = Random(3**20 % (2**20-1)).choice  # arbitrary nontrivial constant seed
 
-from obsidian.align import top_align, left_align
+from obsidian.arrange import top_align, left_align
 from obsidian.canvas import Canvas
 from obsidian.group import Group
 from obsidian.helpers import shape_grid

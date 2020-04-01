@@ -1,4 +1,4 @@
-from obsidian.align import top_align, left_align
+from obsidian.arrange import top_align, left_align
 from obsidian.group import Group
 from obsidian.infix import EQ
 

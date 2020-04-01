@@ -26,11 +26,7 @@ class Group:
         right_edge  = Max(shape.bounds.right_edge  for shape in self.shapes)
         top_edge    = Min(shape.bounds.top_edge    for shape in self.shapes)
         bottom_edge = Max(shape.bounds.bottom_edge for shape in self.shapes)
-        width, height = right_edge - left_edge, bottom_edge - top_edge
-        center_x = (left_edge + right_edge) / 2
-        center_y = (top_edge + bottom_edge) / 2
-        return Bounds(left_edge, right_edge, top_edge, bottom_edge,
-                width, height, Point(center_x, center_y))
+        return Bounds(left_edge, right_edge, top_edge, bottom_edge)
 
     def solve(self):
         model = get_model(And(self.constraints))

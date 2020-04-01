@@ -2,7 +2,7 @@ from dataclasses import dataclass, field, fields
 from numbers import Real as ABCReal
 from typing import Dict, Any
 
-from pysmt.shortcuts import Real, FreshSymbol, And, Equals, Min, Max, Abs
+from pysmt.shortcuts import Real, FreshSymbol, And, Equals, Min, Max
 from pysmt.typing import REAL
 
 from obsidian.wrap import wrap_real

@@ -11,7 +11,9 @@ from obsidian.wrap import wrap_real
 STYLE = Dict[str, Any]
 
 
+# yo dawg i heard you like factories...
 def SMTField(): return field(default_factory=lambda: FreshSymbol(REAL))
+def StyleField(): return field(default_factory=dict)
 
 
 class Shape:
@@ -35,7 +37,7 @@ class Shape:
 class Point(Shape):
     x: REAL = SMTField()
     y: REAL = SMTField()
-    style: STYLE = field(default_factory=dict)
+    style: STYLE = StyleField()
 
 
 @dataclass
@@ -55,7 +57,7 @@ class Rectangle(Shape):
     y: REAL = SMTField()
     width: REAL = SMTField()
     height: REAL = SMTField()
-    style: STYLE = field(default_factory=dict)
+    style: STYLE = StyleField()
 
     @property
     def bounds(self):
@@ -72,7 +74,7 @@ class Circle(Shape):
     x: REAL = SMTField()
     y: REAL = SMTField()
     radius: REAL = SMTField()
-    style: STYLE = field(default_factory=dict)
+    style: STYLE = StyleField()
 
     @property
     def bounds(self):

@@ -86,3 +86,17 @@ class Circle(Shape):
         top_edge, bottom_edge = self.y - self.radius, self.y + self.radius
         diameter = 2 * self.radius
         return Bounds(left_edge, right_edge, top_edge, bottom_edge)
+
+
+@dataclass
+class Line(Shape):
+    pt1: Point = PointField()
+    pt2: Point = PointField()
+
+    @property
+    def bounds(self):
+        xs = (self.pt1.x, self.pt2.x)
+        ys = (self.pt1.y, self.pt2.y)
+        left_edge, right_edge = Min(*xs), Max(*xs)
+        top_edge, bottom_edge = Min(*ys), Max(*ys)
+        return Bounds(left_edge, right_edge, top_edge, bottom_edge)

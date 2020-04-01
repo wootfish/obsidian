@@ -25,8 +25,8 @@ def render_circle(circle, model, target):
 
 def render_line(line, model, target):
     assert len(line.style) > 0
-    x1, y1 = line.pt1.x, line.pt1.y
-    x2, y2 = line.pt2.x, line.pt2.y
+    x1, y1 = N(model[line.pt1.x]), N(model[line.pt1.y])
+    x2, y2 = N(model[line.pt2.x]), N(model[line.pt2.y])
     target.append(draw.Line(x1, y1, x2, y2, **line.style))
 
 

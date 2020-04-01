@@ -92,6 +92,7 @@ class Circle(Shape):
 class Line(Shape):
     pt1: Point = PointField()
     pt2: Point = PointField()
+    style: STYLE = StyleField()
 
     @property
     def bounds(self):

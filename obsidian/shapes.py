@@ -36,6 +36,9 @@ class Shape:
 
 @dataclass
 class Point(Shape):
+    # is there any way to make these instances directly compatible with pysmt
+    # equality constraints, so that we could do eg Equals(point1, point2)? does
+    # pysmt support real vectors? are pysmt arrays equivalent to what we want?
     x: REAL = SMTField()
     y: REAL = SMTField()
     style: STYLE = StyleField()
@@ -101,3 +104,27 @@ class Line(Shape):
         left_edge, right_edge = Min(*xs), Max(*xs)
         top_edge, bottom_edge = Min(*ys), Max(*ys)
         return Bounds(left_edge, right_edge, top_edge, bottom_edge)
+
+
+@dataclass
+class Text(Shape):
+    text: str
+    font_size: ABCReal
+    anchor_point: Point = PointField()
+    style: STYLE = StyleField()
+
+    @property
+    def bounds(self):
+        # FIXME: this class does not know how to compute its bounds! maybe some
+        # clever font nerd can figure out how to compute those, but not me.
+
+        # currently it just says the edges all intersect the anchor point, which
+        # is not very helpful (but is necessary for using this shape in Groups)
+
+        # Note that even without meaningful bounds you can still left-, center-,
+        # or right-align text. You just have to do it via styling. See
+        # examples/go_board.py to get an idea of how this works.
+
+        x = self.anchor_point.x
+        y = self.anchor_point.y
+        return Bounds(x, x, y, y)

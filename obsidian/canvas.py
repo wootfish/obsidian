@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from obsidian.group import Group
 from obsidian.helpers import N
-from obsidian.shapes import Rectangle, Circle, Line
+from obsidian.shapes import Rectangle, Circle, Line, Text
 
 import drawSvg as draw
 
@@ -30,10 +30,17 @@ def render_line(line, model, target):
     target.append(draw.Line(x1, y1, x2, y2, **line.style))
 
 
+def render_text(text, model, target):
+    x = N(model[text.anchor_point.x])
+    y = N(model[text.anchor_point.y])
+    target.append(draw.Text(text.text, text.font_size, x, y, center=True, **text.style))
+
+
 renderers = {
     Rectangle: render_rect,
     Circle: render_circle,
     Line: render_line,
+    Text: render_text,
 }
 
 

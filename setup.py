@@ -5,5 +5,5 @@ setup(
     version='0.0.0',
     description='Constraint-based visual design',
     packages=['obsidian'],
-    install_requires=['pysmt', 'drawSvg'],
+    install_requires=['pysmt', 'drawSvg', 'notebook', 'ipywidgets'],
 )

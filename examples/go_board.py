@@ -43,10 +43,10 @@ class GoBoard:
         constraints = []
         bg = Rectangle(0, 0, width, height, self.BG_STYLE)
 
-        top_left = Point(inset, inset)
-        bot_left = Point(inset, height-inset)
-        top_right = Point(width-inset, inset)
-        bot_right = Point(width-inset, height-inset)
+        bot_left = Point(inset, inset)
+        top_left = Point(inset, height-inset)
+        bot_right = Point(width-inset, inset)
+        top_right = Point(width-inset, height-inset)
 
         top_points = [Point() for _ in range(19)]
         left_points = [Point() for _ in range(19)]
@@ -76,12 +76,12 @@ class GoBoard:
         for row, pt in enumerate(left_points):
             anchor = Point(inset/2 - 1, pt.y + 3)
             s = str(row)
-            grid_coords.append(Text(s, 15, anchor, self.TEXT_STYLE))
+            grid_coords.append(self.text(s, anchor))
 
         col_letters = "ABCDEFGHJKLMNOPQRST"  # no I - the usual convention
         for letter, pt in zip(col_letters, bottom_points):
             anchor = Point(pt.x, inset/2 - 1)
-            grid_coords.append(Text(letter, 15, anchor, self.TEXT_STYLE))
+            grid_coords.append(self.text(letter, anchor))
 
         self.bg = bg
         self.star_points = star_points
@@ -101,6 +101,10 @@ class GoBoard:
     @staticmethod
     def white_stone():
         return Circle(radius=12, style={"stroke": "black", "stroke_width": 1.3, "fill": "#FFFFFF"})
+
+    @staticmethod
+    def text(string, anchor):
+        return Text(string, 15, anchor, GoBoard.TEXT_STYLE)
 
     def add_move(self, player, row, col):
         # if we really wanted to get fancy we'd make this method check for
@@ -126,13 +130,13 @@ class GoBoard:
 board = GoBoard(width, height, inset)
 for i in range(len(position)):
     if position[i] == " ": continue
-    row, col = (18-i // 19), i % 19
+    row, col = (i // 19), i % 19
     board.add_move(position[i], row, col)
 g = board.get_group()
 
 
 # add marker for most recent move
-x, y = board.rc_to_xy(10, 9)
+x, y = board.rc_to_xy(8, 9)
 marker = Circle(radius=8, style={"stroke_width": 2, "stroke": "#EEEEEE"})
 g.shapes.append(marker)
 g.constraints.append(marker.bounds.center.x |EQ| x)

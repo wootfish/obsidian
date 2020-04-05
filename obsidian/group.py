@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from pysmt.shortcuts import get_model, And, Min, Max
+from pysmt.shortcuts import get_model, And, Min, Max, is_sat
 
 from .shapes import Bounds, Shape, Point
 
@@ -29,7 +29,9 @@ class Group:
         return Bounds(left_edge, right_edge, top_edge, bottom_edge)
 
     def solve(self):
-        model = get_model(And(self.constraints))
+        formula = And(self.constraints)
+        assert is_sat(formula)
+        model = get_model(formula)
         return model  # TODO more, eg:
                       # - make solver configurable
                       # - detect & warn when there are multiple solutions

@@ -54,6 +54,7 @@ print()
 
 
 print("\n==== Rendering...")
-canvas = Canvas(g, width, height)
+#canvas = Canvas(g, width, height)
+canvas = Canvas(g)
 canvas.save_png("gallery/circle_and_square.png")
 canvas.save_svg("gallery/circle_and_square.svg")

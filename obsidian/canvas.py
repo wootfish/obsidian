@@ -47,14 +47,18 @@ renderers = {
 @dataclass
 class Canvas:
     group: Group
-    width: float
-    height: float
+    width: float = None
+    height: float = None
 
     rendered = None
 
     def render(self):
+        bounds = self.group.bounds
         model = self.group.solve()
-        drawing = draw.Drawing(self.width, self.height)
+        width = self.width or int(N(model[bounds.right_edge]))
+        height = self.height or int(N(model[bounds.bottom_edge]))
+
+        drawing = draw.Drawing(width, height)
 
         for shape in self.group.shapes:
             renderer = renderers[type(shape)]

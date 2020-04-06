@@ -30,10 +30,10 @@ class GoBoard:
         self.stone_radius = (intersection_distance - margin_between_stones) / 2
 
         # create points for the 4 corners of the board's grid
-        bot_left = Point(inset, inset)
-        top_left = Point(inset, height-inset)
-        bot_right = Point(width-inset, inset)
-        top_right = Point(width-inset, height-inset)
+        top_left = Point(inset, inset)
+        bot_left = Point(inset, height-inset)
+        top_right = Point(width-inset, inset)
+        bot_right = Point(width-inset, height-inset)
 
         # make lists of points evenly distributed along each edge of the board
         top_points = [Point() for _ in range(cols)]
@@ -63,13 +63,13 @@ class GoBoard:
 
         self.grid_coords = grid_coords = []
         for row, pt in enumerate(left_points):
-            anchor = Point(inset/2 - 1, pt.y + 3)
+            anchor = Point(inset/2 - 1, pt.y - 3)
             s = str(rows - row)
             grid_coords.append(self.text(s, anchor))
 
         col_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstuvwxyz"  # no I (as is conventional)
         for letter, pt in zip(col_letters, bottom_points):
-            anchor = Point(pt.x, inset/2 - 1)
+            anchor = Point(pt.x, height - inset/2)
             grid_coords.append(self.text(letter, anchor))
 
     def rc_to_xy(self, row, col):

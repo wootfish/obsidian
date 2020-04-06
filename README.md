@@ -47,9 +47,12 @@ specified independently and then composed.
 
 Explicit coordinates do not often get specified in Obsidian; in fact, for most
 images they are not necessary _at all_. However, just so you know: We place the
-origin in the bottom-left, with +x pointing right and +y pointing up. This may
-not be what you are used to; it's not what I'm used to either, but it is the
-convention our renderer uses and so following it keeps the code simple.
+origin in the top-left, with +x pointing right and +y pointing down.
+
+(This is the convention used by most graphics editing tools; however, it is in
+open defiance of our graphics library, which places the origin in the bottom
+left with +y pointing up; I know that's how people draw x-y axes on paper and
+also how GL does things, but god dammit it just ain't right.)
 
 Until we write some proper docs, the best usage guide is the `examples` folder.
 I've done my best to keep the examples terse and clear. If you have any

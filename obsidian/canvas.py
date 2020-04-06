@@ -6,33 +6,47 @@ from obsidian.shapes import Rectangle, Circle, Line, Text
 import drawSvg as draw
 
 
+def M(sym, drawing):
+    """
+    Intended for y-coordinates. Works like N(), but also flips the value along
+    the y-axis. An act of open rebellion against drawSvg.
+
+    In Obsidian, the origin is in the top left with the +y direction pointing
+    down. drawSvg places it in the bottom left, with +y pointing upward. This
+    function simplifies conversions. Some render methods may need additional
+    adjustment (e.g. render_rect must additionally adjust by rect height).
+    """
+    return drawing.height - N(sym)
+
+
+
 def render_rect(rect, model, target):
     assert len(rect.style) > 0
-    x = N(model[rect.x])
-    y = N(model[rect.y])
     w = N(model[rect.width])
     h = N(model[rect.height])
+    x = N(model[rect.x])
+    y = M(model[rect.y], target) - h
     target.append(draw.Rectangle(x, y, w, h, **rect.style))
 
 
 def render_circle(circle, model, target):
     assert len(circle.style) > 0
     x = N(model[circle.x])
-    y = N(model[circle.y])
+    y = M(model[circle.y], target)
     r = N(model[circle.radius])
     target.append(draw.Circle(x, y, r, **circle.style))
 
 
 def render_line(line, model, target):
     assert len(line.style) > 0
-    x1, y1 = N(model[line.pt1.x]), N(model[line.pt1.y])
-    x2, y2 = N(model[line.pt2.x]), N(model[line.pt2.y])
+    x1, y1 = N(model[line.pt1.x]), M(model[line.pt1.y], target)
+    x2, y2 = N(model[line.pt2.x]), M(model[line.pt2.y], target)
     target.append(draw.Line(x1, y1, x2, y2, **line.style))
 
 
 def render_text(text, model, target):
     x = N(model[text.anchor_point.x])
-    y = N(model[text.anchor_point.y])
+    y = M(model[text.anchor_point.y], target)
     target.append(draw.Text(text.text, text.font_size, x, y, center=True, **text.style))
 
 

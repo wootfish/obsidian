@@ -29,10 +29,10 @@ def shape_grid(w, h, spacing, factory):
 
     # align rows and columns
     for row in grid:
-        constraints += top_align(row)
+        constraints.append(top_align(row))
 
     for col in range(w):
-        constraints += left_align(row[col] for row in grid)
+        constraints.append(left_align(row[col] for row in grid))
 
     # establish spacing between grid elements
     first_row = grid[0]

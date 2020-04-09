@@ -1,10 +1,16 @@
 from dataclasses import dataclass
+from enum import Enum
+
 from obsidian.group import Group
 from obsidian.helpers import N
 from obsidian.infix import EQ
-from obsidian.shapes import Rectangle, Circle, Line, Text
+from obsidian.shapes import Rectangle, Circle, Line, Text, Point
 
 import drawSvg as draw
+
+
+Alignments = Enum("Alignments", "TOP_LEFT TOP_RIGHT BOT_LEFT BOT_RIGHT CENTER")
+TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CENTER = Alignments
 
 
 def M(sym, drawing):
@@ -66,31 +72,39 @@ class Canvas:
     height: float = None
     bg_color: str = None
 
-    align_group: bool = True   # if False, we won't add constraints to place the
-                               # group's top left corner at 0, 0 - in this case
-                               # the user is responsible for making sure the
-                               # group is positioned correctly
+    alignment: Alignments = None  # if None, we won't add constraints to place
+                                  # the group's center anywhere specific on the
+                                  # canvas - in this case, the user is
+                                  # responsible for making sure the group is
+                                  # positioned correctly
 
     model = None
     rendered = None
 
     def render(self, use_cached_model=False):
         bounds = self.group.bounds
+        constraints = self.group.constraints
+        width = self.width or bounds.width
+        height = self.height or bounds.height
 
-        if self.align_group:
-            self.group.constraints += [bounds.left_edge |EQ| 0,
-                                       bounds.top_edge |EQ| 0]
+        if self.alignment in (TOP_LEFT, TOP_RIGHT):
+            constraints.append(bounds.top_edge |EQ| 0)
+        if self.alignment in (BOT_LEFT, BOT_RIGHT):
+            constraints.append(bounds.bottom_edge |EQ| height)
+        if self.alignment in (TOP_LEFT, BOT_LEFT):
+            constraints.append(bounds.left_edge |EQ| 0)
+        if self.alignment in (TOP_RIGHT, BOT_RIGHT):
+            constraints.append(bounds.right_edge |EQ| width)
+        if self.alignment is CENTER:
+            constraints.append(self.group.center |EQ| Point(width/2, height/2))
 
         if use_cached_model:
             model = self.model
         else:
             model = self.model = self.group.solve()
 
-        width = self.width or int(N(model[bounds.right_edge])
-                                - N(model[bounds.left_edge]))
-        height = self.height or int(N(model[bounds.bottom_edge])
-                                  - N(model[bounds.top_edge]))
-
+        width = width if isinstance(width, int) else int(N(model[width]))
+        height = height if isinstance(height, int) else int(N(model[height]))
         drawing = draw.Drawing(width, height)
 
         if self.bg_color is not None:

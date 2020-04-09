@@ -16,7 +16,7 @@ squares = shape_grid(w=grid_w, h=grid_h, spacing=3,
         factory=lambda: Rectangle(width=10, height=10))
 
 for i, square in enumerate(squares.shapes):
-    color = RED if (i // grid_w) & (2**(i%grid_w)) else BLUE
+    color = BLUE if (i // grid_w) & (2**(i%grid_w)) else RED
     square.style = {"fill": color}
 
 print("Working...")

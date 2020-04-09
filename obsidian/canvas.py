@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from obsidian.group import Group
 from obsidian.helpers import N
+from obsidian.infix import EQ
 from obsidian.shapes import Rectangle, Circle, Line, Text
 
 import drawSvg as draw
@@ -63,16 +64,35 @@ class Canvas:
     group: Group
     width: float = None
     height: float = None
+    bg_color: str = None
+
+    align_group: bool = True   # if False, we won't add constraints to place the
+                               # group's top left corner at 0, 0 - in this case
+                               # the user is responsible for making sure the
+                               # group is positioned correctly
 
     rendered = None
 
     def render(self):
         bounds = self.group.bounds
+
+        if self.align_group:
+            self.group.constraints += [
+                    bounds.left_edge |EQ| 0,
+                    bounds.top_edge |EQ| 0
+            ]
+
         model = self.group.solve()
-        width = self.width or int(N(model[bounds.right_edge]))
-        height = self.height or int(N(model[bounds.bottom_edge]))
+        width = self.width or int(N(model[bounds.right_edge])
+                                - N(model[bounds.left_edge]))
+        height = self.height or int(N(model[bounds.bottom_edge])
+                                  - N(model[bounds.top_edge]))
 
         drawing = draw.Drawing(width, height)
+
+        if self.bg_color is not None:
+            bg = Rectangle(0, 0, width, height, {"fill": self.bg_color})
+            render_rect(bg, model, drawing)
 
         for shape in self.group.shapes:
             renderer = renderers[type(shape)]

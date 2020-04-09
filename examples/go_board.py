@@ -24,7 +24,7 @@ class GoBoard:
         self.bg = bg = Rectangle(0, 0, width, height, self.BG_STYLE)
         self.stones = []
 
-        # figure out stone radius
+        # derive stone radius from distance between adjacent intersections
         intersection_distance = min((width - 2*inset) / cols,
                                     (height - 2*inset) / rows)
         self.stone_radius = (intersection_distance - margin_between_stones) / 2
@@ -40,10 +40,10 @@ class GoBoard:
         left_points = [Point() for _ in range(rows)]
         right_points = [Point() for _ in range(rows)]
         bottom_points = [Point() for _ in range(cols)]
-        constraints += evenly_spaced(top_left, top_right, top_points)
-        constraints += evenly_spaced(top_left, bot_left, left_points)
-        constraints += evenly_spaced(top_right, bot_right, right_points)
-        constraints += evenly_spaced(bot_left, bot_right, bottom_points)
+        constraints.append(evenly_spaced(top_left, top_right, top_points))
+        constraints.append(evenly_spaced(top_left, bot_left, left_points))
+        constraints.append(evenly_spaced(top_right, bot_right, right_points))
+        constraints.append(evenly_spaced(bot_left, bot_right, bottom_points))
 
         # draw a line between each opposing pair of points
         h_lines = [Line(p1, p2, self.LINE_STYLE) for p1, p2 in zip(left_points, right_points)]
@@ -51,37 +51,40 @@ class GoBoard:
         self.h_lines = h_lines
         self.v_lines = v_lines
 
-        # mark the "star points" on the board
+        # mark the board's "star points"
         self.star_points = star_points = []
         for row in self.get_star_lines(rows):
             for col in self.get_star_lines(cols):
-                x, y = self.rc_to_xy(row, col)
+                intersection = self.get_intersection(row, col)
                 star_point = Rectangle(width=5, height=5, style={"fill": "#000000"})
                 star_points.append(star_point)
-                constraints.append(star_point.bounds.center.x |EQ| x)
-                constraints.append(star_point.bounds.center.y |EQ| y)
+                constraints.append(star_point.center |EQ| intersection)
 
+        # annotate the grid rows
         self.grid_coords = grid_coords = []
         for row, pt in enumerate(left_points):
             anchor = Point(inset/2 - 1, pt.y - 3)
             s = str(rows - row)
-            grid_coords.append(self.text(s, anchor))
+            grid_coords.append(self.make_text(s, anchor))
 
+        # annotate the grid columns
         col_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstuvwxyz"  # no I (as is conventional)
         for letter, pt in zip(col_letters, bottom_points):
             anchor = Point(pt.x, height - inset/2)
-            grid_coords.append(self.text(letter, anchor))
+            grid_coords.append(self.make_text(letter, anchor))
 
-    def rc_to_xy(self, row, col):
+    def get_intersection(self, row, col):
+        """
+        Returns the intersection of the given row and col as a Point.
+        """
         x = self.v_lines[col].pt1.x
         y = self.h_lines[row].pt1.y
-        return x, y
+        return Point(x, y)
 
     @staticmethod
     def get_star_lines(size):
         """
         Returns the lines on which to put star points for a given side size.
-
         Conventions vary on non-19x19 boards, but for odd-sized boards star
         points are often placed on each corner's 4-4 point, on the center of
         each side, and at the board's center. For 9x9 and below, the 3-3 point
@@ -97,23 +100,22 @@ class GoBoard:
             stars.append(size // 2)
         return stars
 
-    def black_stone(self):
+    def make_black_stone(self):
         return Circle(radius=self.stone_radius, style={"stroke": "black", "stroke_width": 1.3, "fill": "#000000"})
 
-    def white_stone(self):
+    def make_white_stone(self):
         return Circle(radius=self.stone_radius, style={"stroke": "black", "stroke_width": 1.3, "fill": "#FFFFFF"})
 
-    def text(self, string, anchor):
+    def make_text(self, string, anchor):
         return Text(string, self.font_size, anchor, GoBoard.TEXT_STYLE)
 
     def add_stone(self, player, row, col):
         if row >= self.rows: return
         if col >= self.cols: return
-        factories = {"B": self.black_stone, "W": self.white_stone}
+        factories = {"B": self.make_black_stone, "W": self.make_white_stone}
         stone = factories[player]()
-        x, y = self.rc_to_xy(row, col)
-        self.constraints.append(stone.x |EQ| x)
-        self.constraints.append(stone.y |EQ| y)
+        intersection = self.get_intersection(row, col)
+        self.constraints.append(stone.center |EQ| intersection)
         self.stones.append(stone)
 
     def get_group(self):
@@ -137,12 +139,11 @@ def make_board_group(position, width, height, inset, rows=19, cols=19, marker=No
 
     # add marker for specified move, if any
     if marker is not None and marker[0] < rows and marker[1] < cols:
-        x, y = board.rc_to_xy(*marker)
+        intersection = board.get_intersection(*marker)
         r = board.stone_radius * 0.8
         marker = Circle(radius=r, style={"stroke_width": 2, "stroke": "#EEEEEE"})
         g.shapes.append(marker)
-        g.constraints.append(marker.bounds.center.x |EQ| x)
-        g.constraints.append(marker.bounds.center.y |EQ| y)
+        g.constraints.append(marker.center |EQ| intersection)
 
     return g
 
@@ -174,6 +175,6 @@ INSET = 34
 
 if __name__ == "__main__":
     g = make_board_group(POSITION, WIDTH, HEIGHT, INSET, marker=(8, 9))
-    canvas = Canvas(g, WIDTH, HEIGHT)
+    canvas = Canvas(g)
     canvas.save_png("gallery/go_board.png")
     canvas.save_svg("gallery/go_board.svg")

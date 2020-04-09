@@ -28,6 +28,13 @@ class Group:
         bottom_edge = Max(shape.bounds.bottom_edge for shape in self.shapes)
         return Bounds(left_edge, right_edge, top_edge, bottom_edge)
 
+    @property
+    def center(self):
+        bounds = self.bounds
+        center_x = (bounds.left_edge + bounds.right_edge) / 2
+        center_y = (bounds.top_edge + bounds.bottom_edge) / 2
+        return Point(center_x, center_y)
+
     def solve(self):
         formula = And(self.constraints)
         assert is_sat(formula)

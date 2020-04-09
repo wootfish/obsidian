@@ -17,6 +17,7 @@ from numbers import Real as ABCReal
 from pysmt.shortcuts import And, Or, Not, Equals, NotEquals, Real
 
 from obsidian.wrap import wrap_real
+from obsidian.shapes import Point
 
 
 class Infix:
@@ -45,13 +46,31 @@ class Infix:
 
 
 def real_wrapper(f):
+    """
+    Wraps a two-argument function and ensures its arguments are pysmt Reals.
+    """
+
     @wraps(f)
     def wrapper(lhs, rhs):
         return f(wrap_real(lhs), wrap_real(rhs))
     return wrapper
 
 
+def point_equals(lhs, rhs):
+    if isinstance(lhs, Point) and isinstance(rhs, Point):
+        return And(Equals(lhs.x, rhs.x),
+                   Equals(lhs.y, rhs.y))
+    return Equals(lhs, rhs)
+
+
+def point_not_equals(lhs, rhs):
+    if isinstance(lhs, Point) and isinstance(rhs, Point):
+        return Or(NotEquals(lhs.x, rhs.x),
+                  NotEquals(lhs.y, rhs.y))
+    return NotEquals(lhs, rhs)
+
+
 AND = Infix(real_wrapper(And))
 OR = Infix(real_wrapper(Or))
-EQ = Infix(real_wrapper(Equals))
-NE = Infix(real_wrapper(NotEquals))
+EQ = Infix(real_wrapper(point_equals))
+NE = Infix(real_wrapper(point_not_equals))

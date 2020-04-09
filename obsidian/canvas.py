@@ -71,18 +71,21 @@ class Canvas:
                                # the user is responsible for making sure the
                                # group is positioned correctly
 
+    model = None
     rendered = None
 
-    def render(self):
+    def render(self, use_cached_model=False):
         bounds = self.group.bounds
 
         if self.align_group:
-            self.group.constraints += [
-                    bounds.left_edge |EQ| 0,
-                    bounds.top_edge |EQ| 0
-            ]
+            self.group.constraints += [bounds.left_edge |EQ| 0,
+                                       bounds.top_edge |EQ| 0]
 
-        model = self.group.solve()
+        if use_cached_model:
+            model = self.model
+        else:
+            model = self.model = self.group.solve()
+
         width = self.width or int(N(model[bounds.right_edge])
                                 - N(model[bounds.left_edge]))
         height = self.height or int(N(model[bounds.bottom_edge])

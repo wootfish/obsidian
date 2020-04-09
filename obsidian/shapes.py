@@ -17,8 +17,20 @@ def StyleField(): return field(default_factory=dict)
 def PointField(): return field(default_factory=Point)
 
 
+@dataclass
+class Bounds:
+    left_edge: REAL = SMTField()
+    right_edge: REAL = SMTField()
+    top_edge: REAL = SMTField()
+    bottom_edge: REAL = SMTField()
+
+    def __post_init__(self):
+        self.width = self.right_edge - self.left_edge
+        self.height = self.bottom_edge - self.top_edge
+
+
 class Shape:
-    """For subclassing by data classes.
+    """For subclassing by shape dataclasses.
 
     Provides a __post_init__ method which looks for any fields annotated as REAL
     and, if their values are instances of numbers.Real, wraps their values with
@@ -33,30 +45,32 @@ class Shape:
             attr = getattr(self, field.name)
             if isinstance(attr, ABCReal): setattr(self, field.name, Real(attr))
 
+    # question: is there a non-ugly way to ensure that the values of the
+    # bounds() and center() properties are cached, not regenerated on each
+    # access? this would likely improve performance by a lot
+
+    @property
+    def bounds(self):
+        raise NotImplementedError
+
+    @property
+    def center(self):
+        bounds = self.bounds
+        center_x = (bounds.left_edge + bounds.right_edge) / 2
+        center_y = (bounds.top_edge + bounds.bottom_edge) / 2
+        return Point(center_x, center_y)
+
 
 @dataclass
 class Point(Shape):
-    # is there any way to make these instances directly compatible with pysmt
-    # equality constraints, so that we could do eg Equals(point1, point2)? does
-    # pysmt support real vectors? are pysmt arrays equivalent to what we want?
     x: REAL = SMTField()
     y: REAL = SMTField()
     style: STYLE = StyleField()
 
-
-@dataclass
-class Bounds:
-    left_edge: REAL = SMTField()
-    right_edge: REAL = SMTField()
-    top_edge: REAL = SMTField()
-    bottom_edge: REAL = SMTField()
-
-    def __post_init__(self):
-        self.width = self.right_edge - self.left_edge
-        self.height = self.bottom_edge - self.top_edge
-        center_x = (self.left_edge + self.right_edge) / 2
-        center_y = (self.top_edge + self.bottom_edge) / 2
-        self.center = Point(center_x, center_y)
+    @property
+    def bounds(self):
+        x, y = self.x, self.y
+        return Bounds(x, x, y, y)  # just a point!
 
 
 @dataclass
@@ -115,8 +129,9 @@ class Text(Shape):
 
     @property
     def bounds(self):
-        # FIXME: this class does not know how to compute its bounds! maybe some
-        # clever font nerd can figure out how to compute those, but not me.
+        # FIXME: this class does not know how to compute its bounds!
+        # maybe some clever font nerd can figure out how to compute those, but
+        # not me.
 
         # currently it just says the edges all intersect the anchor point, which
         # is not very helpful (but is necessary for using this shape in Groups)

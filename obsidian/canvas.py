@@ -71,12 +71,11 @@ class Canvas:
     width: float = None
     height: float = None
     bg_color: str = None
-
-    alignment: Alignments = None  # if None, we won't add constraints to place
-                                  # the group's center anywhere specific on the
-                                  # canvas - in this case, the user is
-                                  # responsible for making sure the group is
-                                  # positioned correctly
+    alignment: Alignments = CENTER  # if alignment is None, we won't add
+                                    # constraints to place the group's center
+                                    # anywhere specific on the canvas - in this
+                                    # case, the user is responsible for making
+                                    # sure the group is positioned correctly
 
     model = None
     rendered = None

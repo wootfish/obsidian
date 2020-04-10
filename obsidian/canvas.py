@@ -82,25 +82,30 @@ class Canvas:
 
     def render(self, use_cached_model=False):
         bounds = self.group.bounds
-        constraints = self.group.constraints
         width = self.width or bounds.width
         height = self.height or bounds.height
 
+        align_rules = []
         if self.alignment in (TOP_LEFT, TOP_RIGHT):
-            constraints += [bounds.top_edge |EQ| 0]
+            align_rules += [bounds.top_edge |EQ| 0]
         if self.alignment in (BOT_LEFT, BOT_RIGHT):
-            constraints += [bounds.bottom_edge |EQ| height]
+            align_rules += [bounds.bottom_edge |EQ| height]
         if self.alignment in (TOP_LEFT, BOT_LEFT):
-            constraints += [bounds.left_edge |EQ| 0]
+            align_rules += [bounds.left_edge |EQ| 0]
         if self.alignment in (TOP_RIGHT, BOT_RIGHT):
-            constraints += [bounds.right_edge |EQ| width]
+            align_rules += [bounds.right_edge |EQ| width]
         if self.alignment is CENTER:
-            constraints += [self.group.center |EQ| Point(width/2, height/2)]
+            align_rules += [self.group.center |EQ| Point(width/2, height/2)]
+
+        if align_rules:
+            group = Group([self.group], align_rules)
+        else:
+            group = self.group
 
         if use_cached_model and self.model is not None:
             model = self.model
         else:
-            model = self.model = self.group.solve()
+            model = self.model = group.solve()
 
         width = width if isinstance(width, int) else int(N(model[width]))
         height = height if isinstance(height, int) else int(N(model[height]))
@@ -111,7 +116,7 @@ class Canvas:
             bg = Rectangle(0, 0, width, height, {"fill": self.bg_color})
             render_rect(bg, model, drawing)
 
-        for shape in self.group.shapes:
+        for shape in group.shapes:
             renderer = renderers[type(shape)]
             renderer(shape, model, drawing)
 

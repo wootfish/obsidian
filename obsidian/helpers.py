@@ -1,5 +1,6 @@
 from obsidian.arrange import top_align, left_align
 from obsidian.group import Group
+from obsidian.shapes import Bounds
 from obsidian.infix import EQ
 
 
@@ -47,4 +48,12 @@ def shape_grid(w, h, spacing, factory):
     # flatten the grid
     shapes = [shape for row in grid for shape in row]
 
-    return Group(shapes, constraints)
+    # make a group, but override its Bounds for the sake of performance
+    group = Group(shapes, constraints)
+    group.bounds = Bounds(shapes[0].bounds.left_edge,
+                          shapes[-1].bounds.right_edge,
+                          shapes[0].bounds.top_edge,
+                          shapes[-1].bounds.bottom_edge)
+    return group
+
+    # return Group(shapes, constraints)

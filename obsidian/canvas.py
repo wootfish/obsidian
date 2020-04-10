@@ -87,23 +87,24 @@ class Canvas:
         height = self.height or bounds.height
 
         if self.alignment in (TOP_LEFT, TOP_RIGHT):
-            constraints.append(bounds.top_edge |EQ| 0)
+            constraints += [bounds.top_edge |EQ| 0]
         if self.alignment in (BOT_LEFT, BOT_RIGHT):
-            constraints.append(bounds.bottom_edge |EQ| height)
+            constraints += [bounds.bottom_edge |EQ| height]
         if self.alignment in (TOP_LEFT, BOT_LEFT):
-            constraints.append(bounds.left_edge |EQ| 0)
+            constraints += [bounds.left_edge |EQ| 0]
         if self.alignment in (TOP_RIGHT, BOT_RIGHT):
-            constraints.append(bounds.right_edge |EQ| width)
+            constraints += [bounds.right_edge |EQ| width]
         if self.alignment is CENTER:
-            constraints.append(self.group.center |EQ| Point(width/2, height/2))
+            constraints += [self.group.center |EQ| Point(width/2, height/2)]
 
-        if use_cached_model:
+        if use_cached_model and self.model is not None:
             model = self.model
         else:
             model = self.model = self.group.solve()
 
         width = width if isinstance(width, int) else int(N(model[width]))
         height = height if isinstance(height, int) else int(N(model[height]))
+
         drawing = draw.Drawing(width, height)
 
         if self.bg_color is not None:

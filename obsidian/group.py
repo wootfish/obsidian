@@ -45,9 +45,8 @@ class Group:
 
     def solve(self):
         formula = And(self.constraints)
-        # assert is_sat(formula)
         model = get_model(formula)
-        assert model is not None  # implicit assertion of satisfiability
+        assert model is not None  # check for unsatisfiability
         return model  # TODO more, eg:
                       # - make solver configurable
                       # - detect & warn when there are multiple solutions

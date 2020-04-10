@@ -20,13 +20,21 @@ class Group:
             self.shapes += group.shapes
             self.constraints += group.constraints
 
+    _bounds = None
+
     @property
     def bounds(self):
-        left_edge   = Min(shape.bounds.left_edge   for shape in self.shapes)
-        right_edge  = Max(shape.bounds.right_edge  for shape in self.shapes)
-        top_edge    = Min(shape.bounds.top_edge    for shape in self.shapes)
-        bottom_edge = Max(shape.bounds.bottom_edge for shape in self.shapes)
-        return Bounds(left_edge, right_edge, top_edge, bottom_edge)
+        if self._bounds is None:
+            left_edge   = Min(shape.bounds.left_edge   for shape in self.shapes)
+            right_edge  = Max(shape.bounds.right_edge  for shape in self.shapes)
+            top_edge    = Min(shape.bounds.top_edge    for shape in self.shapes)
+            bottom_edge = Max(shape.bounds.bottom_edge for shape in self.shapes)
+            self._bounds = Bounds(left_edge, right_edge, top_edge, bottom_edge)
+        return self._bounds
+
+    @bounds.setter
+    def bounds(self, val):
+        self._bounds = val
 
     @property
     def center(self):
@@ -37,8 +45,9 @@ class Group:
 
     def solve(self):
         formula = And(self.constraints)
-        assert is_sat(formula)
+        # assert is_sat(formula)
         model = get_model(formula)
+        assert model is not None  # implicit assertion of satisfiability
         return model  # TODO more, eg:
                       # - make solver configurable
                       # - detect & warn when there are multiple solutions

@@ -1,8 +1,5 @@
-from obsidian.canvas import Canvas
-from obsidian.group import Group
-from obsidian.helpers import shape_grid
-from obsidian.infix import EQ
-from obsidian.shapes import Rectangle
+from obsidian import Canvas, Group, ShapeGrid, EQ
+from obsidian.geometry import Rectangle
 
 
 grid_w = 5
@@ -12,7 +9,7 @@ BG = "#000000"
 RED = "#AA1010"
 BLUE = "#3030AA"
 
-squares = shape_grid(w=grid_w, h=grid_h, spacing=3,
+squares = ShapeGrid(w=grid_w, h=grid_h, spacing=3,
         factory=lambda: Rectangle(width=10, height=10))
 
 for i, square in enumerate(squares.shapes):

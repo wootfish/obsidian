@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from obsidian.group import Group
-from obsidian.helpers import N
-from obsidian.infix import EQ
-from obsidian.shapes import Rectangle, Circle, Line, Text, Point
+from .groups import Group
+from .helpers import N
+from .infix import EQ
+from .geometry import Rectangle, Circle, Line, Point
+from .symbols import Text
 
 import drawSvg as draw
 
@@ -24,7 +25,6 @@ def M(sym, drawing):
     adjustment (e.g. render_rect must additionally adjust by rect height).
     """
     return drawing.height - N(sym)
-
 
 
 def render_rect(rect, model, target):
@@ -55,6 +55,16 @@ def render_text(text, model, target):
     x = N(model[text.anchor_point.x])
     y = M(model[text.anchor_point.y], target)
     target.append(draw.Text(text.text, text.font_size, x, y, center=True, **text.style))
+
+
+def render_shape(shape, model, target):
+    if isinstance(shape, Group):
+        for subshape in shape.shapes:
+            render_shape(subshape, model, target)
+    else:
+        assert type(shape) in renderers  # make sure we know how to render this
+        renderer = renderers[type(shape)]
+        renderer(shape, model, target)
 
 
 renderers = {
@@ -107,6 +117,7 @@ class Canvas:
         else:
             model = self.model = group.solve()
 
+        # if width or height ended up depending on bounds, convert to int now
         width = width if isinstance(width, int) else int(N(model[width]))
         height = height if isinstance(height, int) else int(N(model[height]))
 
@@ -116,10 +127,7 @@ class Canvas:
             bg = Rectangle(0, 0, width, height, {"fill": self.bg_color})
             render_rect(bg, model, drawing)
 
-        for shape in group.shapes:
-            renderer = renderers[type(shape)]
-            renderer(shape, model, drawing)
-
+        render_shape(group, model, drawing)
         self.rendered = drawing
 
     def save_svg(self, fname):

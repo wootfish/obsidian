@@ -1,10 +1,7 @@
-from itertools import islice
-
+from obsidian import Canvas, Group, EQ
 from obsidian.arrange import evenly_spaced
-from obsidian.canvas import Canvas
-from obsidian.group import Group
-from obsidian.infix import EQ
-from obsidian.shapes import Point, Rectangle, Line, Circle, Text
+from obsidian.geometry import Point, Rectangle, Line, Circle
+from obsidian.symbols import Text
 
 
 class GoBoard:
@@ -21,7 +18,7 @@ class GoBoard:
         self.cols = cols
         self.font_size = font_size
         self.constraints = constraints = []
-        self.bg = bg = Rectangle(0, 0, width, height, self.BG_STYLE)
+        self.bg = Rectangle(0, 0, width, height, self.BG_STYLE)
         self.stones = []
 
         # derive stone radius from distance between adjacent intersections

@@ -12,12 +12,11 @@ __all__ = ['AND', 'OR', 'EQ', 'NE']
 
 
 from functools import wraps
-from numbers import Real as ABCReal
 
-from pysmt.shortcuts import And, Or, Not, Equals, NotEquals, Real
+from pysmt.shortcuts import And, Or, Equals, NotEquals
 
-from obsidian.wrap import wrap_real
-from obsidian.shapes import Point
+from obsidian.helpers import wrap_real
+from obsidian.geometry import Point
 
 
 class Infix:

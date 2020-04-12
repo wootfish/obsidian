@@ -41,6 +41,9 @@ class XorSymbol(Group):
     style: STYLE = StyleField()  # suggested fields: 'stroke', 'stroke_width'
 
     def __post_init__(self):
+        shapes = self.shapes
+        constraints = self.constraints
+
         circle = Circle(style=self.style)
         top_pt = Point(circle.center.x, circle.bounds.top_edge)
         left_pt = Point(circle.bounds.left_edge, circle.center.y)
@@ -48,8 +51,9 @@ class XorSymbol(Group):
         bottom_pt = Point(circle.center.x, circle.bounds.bottom_edge)
         h_line = Line(left_pt, right_pt, style=self.style)
         v_line = Line(top_pt, bottom_pt, style=self.style)
-        self.shapes = [circle, h_line, v_line]
-        self.constraints = [circle.bounds.width |EQ| self.diameter]
+
+        shapes += [circle, h_line, v_line]
+        constraints += [circle.bounds.width |EQ| self.diameter]
 
 
 @dataclass
@@ -59,10 +63,14 @@ class EqSymbol(Group):
     style: STYLE = StyleField()  # suggested fields: 'stroke', 'stroke_width'
 
     def __post_init__(self):
+        shapes = self.shapes
+        constraints = self.constraints
+
         line_1 = Line(style=self.style)
         line_2 = Line(style=self.style)
-        self.shapes = [line_1, line_2]
-        self.constraints = [
+
+        shapes += [line_1, line_2]
+        constraints += [
             line_1.pt1.y |EQ| line_1.pt2.y,           # line 1 is horizontal
             line_2.pt1.y |EQ| line_2.pt2.y,           # line 2 is horizontal
             line_2.pt1.y |EQ| line_1.pt1.y + self.h,  # line 2 is below line 1

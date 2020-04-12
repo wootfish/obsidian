@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from functools import wraps
 
 from .groups import Group
 from .helpers import N
@@ -12,6 +13,18 @@ import drawSvg as draw
 
 Alignments = Enum("Alignments", "TOP_LEFT TOP_RIGHT BOT_LEFT BOT_RIGHT CENTER")
 TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CENTER = Alignments
+
+
+class ModelCache:
+    def __init__(self, model, cache):
+        self.model = model
+        self.cache = cache
+
+    def __getitem__(self, item):
+        cache = self.cache
+        if item not in cache:
+            cache[item] = self.model[item]
+        return cache[item]
 
 
 def M(sym, drawing):
@@ -90,11 +103,10 @@ class Canvas:
     model = None
     rendered = None
 
-    def render(self, use_cached_model=False):
+    def get_align_rules(self):
         bounds = self.group.bounds
         width = self.width or bounds.width
         height = self.height or bounds.height
-
         align_rules = []
         if self.alignment in (TOP_LEFT, TOP_RIGHT):
             align_rules += [bounds.top_edge |EQ| 0]
@@ -106,18 +118,32 @@ class Canvas:
             align_rules += [bounds.right_edge |EQ| width]
         if self.alignment is CENTER:
             align_rules += [self.group.center |EQ| Point(width/2, height/2)]
+        return align_rules
 
+    def render(self, use_cached_model=False, var_cache=None):
+        """
+        If you want to cache variable lookups for performance reasons (eg when
+        rendering an animation where shapes' styles may change between frames
+        but their positions won't) then pass an empty dict to var_cache. To
+        share a cache between multiple calls, pass them the same dict.
+        """
+
+        bounds = self.group.bounds
+        width = self.width or bounds.width
+        height = self.height or bounds.height
+        align_rules = self.get_align_rules()
         if align_rules:
             group = Group([self.group], align_rules)
         else:
             group = self.group
-
         if use_cached_model and self.model is not None:
             model = self.model
         else:
             model = self.model = group.solve()
+        if var_cache is not None:
+            model = ModelCache(model, var_cache)
 
-        # if width or height ended up depending on bounds, convert to int now
+        # if width or height weren't specified explicitly, get them from bounds
         width = width if isinstance(width, int) else int(N(model[width]))
         height = height if isinstance(height, int) else int(N(model[height]))
 

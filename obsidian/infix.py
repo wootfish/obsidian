@@ -3,17 +3,18 @@ Notes:
 may want to expand the list of supported comparisons
 (to include eg GT LT GE LE)
 
-also, "not" is currently omitted - should we export pysmt.shortcuts.Not as NOT for consistency? even though it's not an
-infix? if we're doing that, should we rename this file?
+also, "not" is currently omitted - should we export pysmt.shortcuts.Not as NOT
+for consistency? even though it's not an infix? if we're doing that, should we
+rename this file?
 """
 
 
-__all__ = ['AND', 'OR', 'EQ', 'NE']
+__all__ = ['EQ', 'NE']
 
 
 from functools import wraps
 
-from pysmt.shortcuts import And, Or, Equals, NotEquals
+from pysmt.shortcuts import Equals, NotEquals
 
 from obsidian.helpers import wrap_real
 from obsidian.geometry import Point
@@ -69,7 +70,5 @@ def point_not_equals(lhs, rhs):
     return NotEquals(lhs, rhs)
 
 
-AND = Infix(real_wrapper(And))
-OR = Infix(real_wrapper(Or))
 EQ = Infix(real_wrapper(point_equals))
 NE = Infix(real_wrapper(point_not_equals))

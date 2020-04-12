@@ -1,12 +1,9 @@
-# circle_and_square.py
-
 from obsidian import Canvas, Group, EQ
 from obsidian.geometry import Circle, Rectangle, Point
 
 SQRT_2 = 2**0.5
 
-WIDTH = 300
-HEIGHT = 300
+WIDTH = HEIGHT = 300
 
 CIRCLE_STYLE = {"stroke": "#0000ff", "fill_opacity": "0"}
 RECT_STYLE = {"stroke": "#ff0000", "fill_opacity": "0"}

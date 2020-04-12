@@ -1,10 +1,7 @@
+# circle_and_square.py
+
 from obsidian import Canvas, Group, EQ
 from obsidian.geometry import Circle, Rectangle, Point
-
-# from obsidian.canvas import Canvas
-# from obsidian.geometry import Circle, Rectangle, Point
-# from obsidian.groups import Group
-# from obsidian.infix import EQ
 
 SQRT_2 = 2**0.5
 

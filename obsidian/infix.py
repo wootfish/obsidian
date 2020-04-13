@@ -14,7 +14,7 @@ __all__ = ['EQ', 'NE']
 
 from functools import wraps
 
-from pysmt.shortcuts import Equals, NotEquals
+from pysmt.shortcuts import And, Equals, NotEquals
 
 from obsidian.helpers import wrap_real
 from obsidian.geometry import Point

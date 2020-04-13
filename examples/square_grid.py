@@ -13,7 +13,8 @@ squares = ShapeGrid(w=GRID_W, h=GRID_H, spacing=SPACING,
         factory=lambda: Rectangle(width=10, height=10))
 
 for i, square in enumerate(squares.shapes):
-    color = BLUE if (i // GRID_W) & (2 ** (i % GRID_W)) else RED
+    mask = 2 ** (GRID_W - 1 - (i % GRID_W))
+    color = BLUE if (i // GRID_W) & mask else RED
     square.style = {"fill": color}
 
 canvas_w = squares.bounds.width + 2*SPACING

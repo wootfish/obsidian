@@ -2,14 +2,14 @@
 
 
 __all__ = ("Canvas", "Alignments", "TOP_LEFT", "TOP_RIGHT", "BOT_LEFT",
-        "BOT_RIGHT", "CENTER", "Group", "ShapeGrid", "AND", "OR", "EQ", "NE",
-        "arrange", "geometry", "symbols")
+        "BOT_RIGHT", "CENTER", "Group", "ShapeGrid", "EQ", "NE", "arrange",
+        "geometry", "symbols")
 
 
 from .canvas import Canvas
 from .canvas import Alignments, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CENTER
 from .groups import Group, ShapeGrid
-from .infix import AND, OR, EQ, NE
+from .infix import EQ, NE
 
 
 # here we patch a bug in pysmt so we can use our infix operators

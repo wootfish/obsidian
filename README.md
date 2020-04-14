@@ -25,7 +25,7 @@ Dev setup instructions:
 ```
 $ git clone git@github.com:wootfish/obsidian.git
 $ cd obsidian
-$ python3 -m venv venv
+$ python3.7 -m venv venv
 $ source venv/bin/activate
 (venv) $ pip install -e .
 (venv) $ pysmt-install --z3

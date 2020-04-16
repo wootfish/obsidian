@@ -65,6 +65,7 @@ def render_line(line, model, target):
 
 
 def render_text(text, model, target):
+    assert len(text.style) > 0
     x = N(model[text.anchor_point.x])
     y = M(model[text.anchor_point.y], target)
     target.append(draw.Text(text.text, text.font_size, x, y, center=True, **text.style))

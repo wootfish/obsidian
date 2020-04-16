@@ -12,7 +12,7 @@ BLUE = "#3030AA"
 squares = ShapeGrid(w=GRID_W, h=GRID_H, spacing=SPACING,
         factory=lambda: Rectangle(width=10, height=10))
 
-for i, square in enumerate(squares.shapes):
+for i, square in enumerate(squares.by_rows()):
     mask = 2 ** (GRID_W - 1 - (i % GRID_W))
     color = BLUE if (i // GRID_W) & mask else RED
     square.style = {"fill": color}

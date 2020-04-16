@@ -121,7 +121,7 @@ class Canvas:
             align_rules += [self.group.center |EQ| Point(width/2, height/2)]
         return align_rules
 
-    def render(self, use_cached_model=False, var_cache=None):
+    def render(self, use_cached_model=False, var_cache=None, simplify=False):
         """
         If you want to cache variable lookups for performance reasons (eg when
         rendering an animation where shapes' styles may change between frames
@@ -140,7 +140,7 @@ class Canvas:
         if use_cached_model and self.model is not None:
             model = self.model
         else:
-            model = self.model = group.solve()
+            model = self.model = group.solve(simplify=simplify)
         if var_cache is not None:
             model = ModelCache(model, var_cache)
 

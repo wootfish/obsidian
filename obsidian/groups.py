@@ -57,8 +57,10 @@ class Group(Shape):
             except AttributeError: pass
         return constraints
 
-    def solve(self):
+    def solve(self, simplify=False):
         formula = And(self.constraints)
+        if simplify:
+            formula = formula.simplify()
         model = get_model(formula)
         assert model is not None  # check for unsatisfiability
         return model

@@ -36,6 +36,17 @@ class Rectangle(Shape):
         top_edge, bottom_edge = self.y, self.y + self.height
         return Bounds(left_edge, right_edge, top_edge, bottom_edge)
 
+    @classmethod
+    def around(cls, group, margin=1, *args, **kwargs):
+        """
+        Returns a rectangle which surrounds the given group.
+        """
+        x = group.bounds.left_edge - margin
+        y = group.bounds.top_edge - margin
+        width = group.bounds.width + 2*margin
+        height = group.bounds.height + 2*margin
+        return cls(x, y, width, height, *args, **kwargs)
+
 
 @dataclass
 class Circle(Shape):

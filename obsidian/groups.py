@@ -122,3 +122,10 @@ class ShapeGrid(Group):
         br_bounds = self.shapes[-1].bounds
         return Bounds(ul_bounds.left_edge, br_bounds.right_edge,
                       ul_bounds.top_edge, br_bounds.bottom_edge)
+
+    def by_rows(self):
+        yield from self.shapes
+
+    def by_cols(self):
+        for col in range(self.w):
+            yield from self.shapes[col::self.w]

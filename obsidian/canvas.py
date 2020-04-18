@@ -140,7 +140,7 @@ class Canvas:
         else:
             assert self.group is not None
             margin = self.margin or 0
-            height self.group.bounds.height + margin
+            height = self.group.bounds.height + margin
 
         if model is None:
             return height

@@ -3,7 +3,7 @@ from enum import Enum
 from functools import wraps
 
 from .groups import Group
-from .helpers import N
+from .helpers import N, maybe_get_from_model
 from .infix import EQ
 from .geometry import Rectangle, Circle, Line, Point
 from .symbols import Text
@@ -94,6 +94,7 @@ class Canvas:
     group: Group
     width: float = None
     height: float = None
+    margin: float = None  # if width or height are absent, default to group's width or height, plus 2*margin (TODO)
     bg_color: str = None
     alignment: Alignments = CENTER  # if alignment is None, we won't add
                                     # constraints to place the group's center
@@ -106,8 +107,8 @@ class Canvas:
 
     def get_align_rules(self):
         bounds = self.group.bounds
-        width = self.width or bounds.width
-        height = self.height or bounds.height
+        width = self.get_width()
+        height = self.get_height()
         align_rules = []
         if self.alignment in (TOP_LEFT, TOP_RIGHT):
             align_rules += [bounds.top_edge |EQ| 0]
@@ -121,6 +122,30 @@ class Canvas:
             align_rules += [self.group.center |EQ| Point(width/2, height/2)]
         return align_rules
 
+    def get_width(self, model=None):
+        if self.width is not None:
+            width = self.width
+        else:
+            assert self.group is not None
+            margin = self.margin or 0
+            width = self.group.bounds.width + margin
+
+        if model is None:
+            return width
+        return int(maybe_get_from_model(width, model))
+
+    def get_height(self, model=None):
+        if self.height is not None:
+            height = self.height
+        else:
+            assert self.group is not None
+            margin = self.margin or 0
+            height self.group.bounds.height + margin
+
+        if model is None:
+            return height
+        return int(maybe_get_from_model(height, model))
+
     def render(self, use_cached_model=False, var_cache=None, simplify=False):
         """
         If you want to cache variable lookups for performance reasons (eg when
@@ -129,33 +154,38 @@ class Canvas:
         share a cache between multiple calls, pass them the same dict.
         """
 
-        bounds = self.group.bounds
-        width = self.width or bounds.width
-        height = self.height or bounds.height
+        # figure out whether we're adding alignment constraints, and if so
+        # create a new Group encapsulating them + the existing Group
         align_rules = self.get_align_rules()
         if align_rules:
             group = Group([self.group], align_rules)
         else:
             group = self.group
+
+        # get a model for our group, possibly by running it thru the solver
         if use_cached_model and self.model is not None:
             model = self.model
         else:
             model = self.model = group.solve(simplify=simplify)
+
+        # wrap the model with a caching abstraction if requested to do so
         if var_cache is not None:
             model = ModelCache(model, var_cache)
 
-        # if width or height weren't specified explicitly, get them from bounds
-        width = width if isinstance(width, int) else int(N(model[width]))
-        height = height if isinstance(height, int) else int(N(model[height]))
+        # get width and height as ints (even if they weren't specified as such)
+        width = self.get_width(model)
+        height = self.get_height(model)
 
+        # initialize the drawing
         drawing = draw.Drawing(width, height)
-
         if self.bg_color is not None:
             bg = Rectangle(0, 0, width, height, {"fill": self.bg_color})
             render_rect(bg, model, drawing)
 
+        # draw the group and return the result
         render_shape(group, model, drawing)
         self.rendered = drawing
+        return drawing
 
     def save_svg(self, fname):
         if self.rendered is None:

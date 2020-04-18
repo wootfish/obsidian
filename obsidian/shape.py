@@ -35,6 +35,21 @@ class Shape:
             if isinstance(attr, ABCReal):
                 setattr(self, field.name, Real(attr))
 
+    @classmethod
+    def factory(cls, **kwargs):
+        """
+        Returns a variable-argument factory function for the shape. Any keyword
+        args passed to this function will be passed on to all new shape
+        instances. Args passed to the factory function itself will take
+        precedence over args passed to this function.
+
+        This resembles currying, and makes it easier for user code to set up
+        factories for use with e.g. obsidian.shapes.ShapeGrid in a readable way
+        (i.e. without having to expose the reader to uninteresting details like
+        lambdas or ** notation).
+        """
+        return lambda *args, **kw: cls(*args, **kwargs, **kw)
+
     @property
     def bounds(self):
         raise NotImplementedError

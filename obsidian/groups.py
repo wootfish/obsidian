@@ -80,7 +80,7 @@ class ShapeGrid(Group):
 
     This example builds a 5x5 grid of squares with 10px sides and 2px margins:
     >>> grid = ShapeGrid(w=5, h=5, spacing=2,
-            factory=lambda: Rectangle(width=10, height=10))
+            factory=Rectangle.factory(width=10, height=10))
     """
 
     w: REAL

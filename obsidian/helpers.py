@@ -35,3 +35,14 @@ def cached_property(f):
 def N(sym):
     """Returns raw numeric value for solved symbol."""
     return float(sym.constant_value())
+
+
+def maybe_get_from_model(val, model):
+    """
+    If val is a Python-native real, return val.
+    Otherwise, attempt to resolve val within model and return the result.
+
+    Useful for handling parameters which may be passed either as numeric
+    constants or in terms of the solver's variables.
+    """
+    return val if isinstance(val, ABCReal) else N(model[val])

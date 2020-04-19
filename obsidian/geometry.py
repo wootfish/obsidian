@@ -18,6 +18,38 @@ class Point(Shape):
         x, y = self.x, self.y
         return Bounds(x, x, y, y)  # just a point!
 
+    def __add__(self, other):
+        if type(other) not in (Point, tuple, list):
+            return NotImplemented
+
+        if type(other) is Point:
+            dx, dy = other.x, other.y
+        else:
+            if len(other) != 2:
+                return NotImplemented
+            dx, dy = other
+
+        return Point(self.x + dx, self.y + dy, self.style)
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        if type(other) not in (Point, tuple, list):
+            return NotImplemented
+
+        if type(other) is Point:
+            dx, dy = other.x, other.y
+        else:
+            if len(other) != 2:
+                return NotImplemented
+            dx, dy = other
+
+        return self.__add__((-dx, -dy))
+
+    def __rsub__(self, other):
+        return self.__sub__(other)
+
 
 def PointField(): return field(default_factory=Point)
 

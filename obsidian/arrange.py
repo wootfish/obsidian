@@ -47,6 +47,8 @@ def evenly_spaced(start_point, end_point, shapes):
     assert n > 1
     constraints = []
     for i in range(n):
+        if shapes[i] is None:
+            continue
         j = n - i - 1
         x = (start_point.x*j + end_point.x*i) / (n-1)
         y = (start_point.y*j + end_point.y*i) / (n-1)

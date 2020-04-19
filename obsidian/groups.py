@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from obsidian.arrange import top_align, left_align
+from obsidian.fields import STYLE, StyleField
 from obsidian.shape import Shape, Bounds
 from obsidian.helpers import cached_property
 
@@ -10,6 +11,7 @@ from pysmt.shortcuts import Equals, And, Min, Max, get_model
 from pysmt.typing import REAL
 
 
+@dataclass
 class Group(Shape):
     """For representing a collection of at least one Shape and any number of
     constraints, or for subclassing by shape group dataclasses.
@@ -25,9 +27,11 @@ class Group(Shape):
 
     _bounds = None
 
-    def __init__(self, shapes=None, constraints=None):
+    def __init__(self, shapes=None, constraints=None, style=None):
         self.shapes.extend(shapes or [])
         self.constraints.extend(constraints or [])
+        self.style = style or {}
+        self.__post_init__()  # in case subclasses need this
 
     @property
     def bounds(self):

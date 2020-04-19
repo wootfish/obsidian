@@ -40,45 +40,56 @@ def M(sym, drawing):
     return drawing.height - N(sym)
 
 
-def render_rect(rect, model, target):
-    assert len(rect.style) > 0
+def style_join(base, extra):
+    return dict(base, **extra)  # only works because we know all style dict keys will be str - we'll have to change this if they ever become something else (eg Enum elements)
+
+
+def render_rect(rect, model, target, style=None):
+    style = style_join(style or {}, rect.style)
+    assert len(style) > 0
     w = N(model[rect.width])
     h = N(model[rect.height])
     x = N(model[rect.x])
     y = M(model[rect.y], target) - h
-    target.append(draw.Rectangle(x, y, w, h, **rect.style))
+    target.append(draw.Rectangle(x, y, w, h, **style))
 
 
-def render_circle(circle, model, target):
-    assert len(circle.style) > 0
+def render_circle(circle, model, target, style=None):
+    style = style_join(style or {}, circle.style)
+    assert len(style) > 0
     x = N(model[circle.x])
     y = M(model[circle.y], target)
     r = N(model[circle.radius])
-    target.append(draw.Circle(x, y, r, **circle.style))
+    target.append(draw.Circle(x, y, r, **style))
 
 
-def render_line(line, model, target):
-    assert len(line.style) > 0
+def render_line(line, model, target, style=None):
+    style = style_join(style or {}, line.style)
+    assert len(style) > 0
     x1, y1 = N(model[line.pt1.x]), M(model[line.pt1.y], target)
     x2, y2 = N(model[line.pt2.x]), M(model[line.pt2.y], target)
-    target.append(draw.Line(x1, y1, x2, y2, **line.style))
+    target.append(draw.Line(x1, y1, x2, y2, **style))
 
 
-def render_text(text, model, target):
-    assert len(text.style) > 0
+def render_text(text, model, target, style=None):
+    style = style_join(style or {}, text.style)
+    assert len(style) > 0
     x = N(model[text.anchor_point.x])
     y = M(model[text.anchor_point.y], target)
-    target.append(draw.Text(text.text, text.font_size, x, y, center=True, **text.style))
+    target.append(draw.Text(text.text, text.font_size, x, y, center=True, **style))
 
 
-def render_shape(shape, model, target):
-    if isinstance(shape, Group):
+def render_shape(shape, model, target, style=None):
+    style = style or {}
+    if isinstance(shape, Group):  # isinstance check also catches Group subclasses (the type() lookup below would not)
+        if hasattr(shape, 'style'):
+            style = style_join(style, shape.style)
         for subshape in shape.shapes:
-            render_shape(subshape, model, target)
+            render_shape(subshape, model, target, style)
     else:
         assert type(shape) in renderers  # make sure we know how to render this
         renderer = renderers[type(shape)]
-        renderer(shape, model, target)
+        renderer(shape, model, target, style)
 
 
 renderers = {

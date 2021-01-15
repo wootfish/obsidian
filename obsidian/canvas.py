@@ -211,9 +211,11 @@ class Canvas:
         print("Wrote", fname)
 
 
-def render(group, **kwargs):
-    """Helper function. Cuts down on boilerplate when working in Jupyter notebooks.
-    Supports passing parameters to the Canvas through **kwargs."""
-    canvas = Canvas(group, **kwargs)
+def render(group, *args, **kwargs):
+    """Helper function. For simple renders, removes the need to instantiate a
+    Canvas directly. Helps to cut down on boilerplate when working in Jupyter
+    notebooks as well. Supports passing parameters to the Canvas through
+    *args or **kwargs."""
+    canvas = Canvas(group, *args, **kwargs)
     canvas.render()
     return canvas.rendered

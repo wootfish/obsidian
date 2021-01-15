@@ -18,6 +18,22 @@ class Bounds:
         self.width = self.right_edge - self.left_edge
         self.height = self.bottom_edge - self.top_edge
 
+    # i go back and forth on whether i prefer "top/bottom" or "upper/lower", so
+    # here are some aliases that let us have it both ways :)
+    @property
+    def upper_edge(self):
+        return self.top_edge
+    @upper_edge.setter
+    def upper_edge(self, val):
+        self.top_edge = val
+
+    @property
+    def lower_edge(self):
+        return self.bottom_edge
+    @lower_edge.setter
+    def lower_edge(self, val):
+        self.bottom_edge = val
+
 
 class Shape:
     """For subclassing by shape dataclasses.

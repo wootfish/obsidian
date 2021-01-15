@@ -11,6 +11,11 @@ from pysmt.shortcuts import Equals, And, Min, Max, get_model
 from pysmt.typing import REAL
 
 
+# thrown when a user tries to get a named shape from a Group
+# if the Group contains multiple shapes with the given name
+class AmbiguousNameError(Exception): pass
+
+
 @dataclass
 class Group(Shape):
     """For representing a collection of at least one Shape and any number of
@@ -23,15 +28,50 @@ class Group(Shape):
     If subclasses want Shape's Real -> pysmt.Real conversion feature, they must
     explicitly invoke it by calling super().__post_init__() within their own
     __post_init__() methods.
+
+    The __init__ method's `shapes` parameter may be a list or a dict. If it is
+    a dict, it should map names to named shapes. To pass a combination of
+    named and unnamed shapes, add a key like {None: [Shape, ...]}
+
+    Named shapes should have globally unique names. Duplicate
+    names won't throw an error on creation, but they will error if/when
+    you try to resolve them.
     """
 
     _bounds = None
 
     def __init__(self, shapes=None, constraints=None, style=None):
-        self.shapes.extend(shapes or [])
+        if isinstance(shapes, list):
+            self.shapes.extend(shapes)
+        if isinstance(shapes, dict):
+            self.named_shapes.update(shapes)
+            self.shapes.extend(v for k,v in shapes.items() if k is not None)
+            self.shapes.extend(shapes.get(None, []))
+
         self.constraints.extend(constraints or [])
         self.style = style or {}
         self.__post_init__()  # in case subclasses need this
+
+    def __getitem__(self, name: str):
+        """Raises an exception if `name` is not found OR if more than one shape
+        called `name` is found. """
+        # TODO this could probably be optimized - currently it
+        # scans subtrees more than once per loop (first during the `not in`
+        # check, then during name resolution)
+        item = self.named_shapes.get(name)
+        for group in self.subgroups():
+            if name not in group:
+                continue
+            if item is not None:
+                raise AmbiguousNameError(f"group contains multiple shapes named '{name}'")
+            item = group[name]  # this line may also raise AmbiguousNameError
+        if item is None:
+            raise KeyError(f"named shape '{name}' not found")
+        return item
+
+    def __contains__(self, name):
+        """note: unlike getitem, this does *not* check for duplicates of names (is this a problem?)"""
+        return name in self.named_shapes or any(name in shape for shape in self.shapes if isinstance(shape, Group))
 
     @property
     def bounds(self):
@@ -54,6 +94,11 @@ class Group(Shape):
         return []
 
     @cached_property
+    def named_shapes(self):
+        # defined here for same reason as with shapes()
+        return {}
+
+    @cached_property
     def constraints(self):
         constraints = []
         for shape in self.shapes:
@@ -68,6 +113,22 @@ class Group(Shape):
         model = get_model(formula)
         assert model is not None  # check for unsatisfiability
         return model
+
+    def subgroups(self):
+        yield from (s for s in self.shapes if isinstance(s, Group))
+
+    def items(self):
+        """Iterates over named shapes in this group and its subgroups.
+        Yields 2-tuples: (name, shape)
+        Raises AmbiguousNameError if duplicate names are detected."""
+        seen_names = set(self.named_shapes.keys())
+        yield from self.named_shapes.items()
+        for group in self.subgroups():
+            for name, shape in group.items():
+                if name in seen_names:
+                    raise AmbiguousNameError(f"duplicate name {name}")
+                seen_names.add(name)
+                yield (name, shape)
 
 
 @dataclass

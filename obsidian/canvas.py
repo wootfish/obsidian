@@ -209,3 +209,11 @@ class Canvas:
             self.render()
         self.rendered.savePng(fname)
         print("Wrote", fname)
+
+
+def render(group, **kwargs):
+    """Helper function. Cuts down on boilerplate when working in Jupyter notebooks.
+    Supports passing parameters to the Canvas through **kwargs."""
+    canvas = Canvas(group, **kwargs)
+    canvas.render()
+    return canvas.rendered

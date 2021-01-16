@@ -2,6 +2,7 @@ from dataclasses import dataclass, fields
 from drawSvg import animate_video, animate_jupyter
 import re
 
+from copy import copy
 from canvas import render
 from fields import STYLE
 from groups import Group
@@ -80,7 +81,6 @@ class KeyframeAnimation:
     def _render(self, anim, *args, **kwargs):
         """..."""
 
-
         # loop over pairs of keyframes
         # for each pair, draw the first one, then draw the frames between them
         # (the final one needs to be drawn after the loop)
@@ -88,7 +88,6 @@ class KeyframeAnimation:
         for group in self._get_groups():
             frame = render(group, *args, **kwargs)
             anim.append_frame(frame)
-
 
     def _get_groups(self):
         for cur, nxt in zip(self._keyframes, self._keyframes[1:]):
@@ -103,34 +102,48 @@ class KeyframeAnimation:
         """Interpolates from `cur` to `nxt` in `steps` steps, but yields *only*
         the intermediate, interpolated groups, skipping both endpoints. As such,
         the iterator will yield a total of `steps-1` times.
-
-        Side effect: `cur` will be modified by this method.
         """
 
-        # pos_lerps = {}
+        style_originals = {}
         style_lerps = {name: {} for name in cur.keys()}
 
-        # precompute the lerps for each frame 
+        # precompute the lerps for each frame
         for name, cur_shape in cur.items():
             assert name in nxt  # or should we just silently continue?
             nxt_shape = nxt[name]
             assert hasattr(cur_shape, 'style')
             assert hasattr(nxt_shape, 'style')
 
-            for prop in _get_color_styles(cur_shape.styles):
+            style_originals[name] = cur_shape.style  # back up the style dict
+            cur_shape.style = copy(cur_shape.style)  # (temporarily) replace style dict with shallow copy
+
+            for prop in _get_color_styles(cur_shape.style):
                 assert prop in nxt_shape.styles  # or just continue?
                 c1 = cur_shape.styles[prop]
                 c2 = nxt_shape.styles[prop]
                 interp = lerp_colors(c1, c2, steps)
-                style_lerps[name][prop] = interp[1:-1]  # skip the start & end
+                style_lerps[name][prop] = interp[1:-1]  # trim the endpoints
 
+        # NOTE: we've only shallow-copied the style dicts, so we should only
+        # make shallow changes to it - this shouldn't be a problem, but it might
+        # be nonobvious to the reader, and failing to follow this guidance could
+        # lead to truly maddening side-effects and bugs, so just thought I'd
+        # leave a note to this effect for any future developers :)
+
+        # generate the frames
         for i in range(steps-1):
             for name, styles in style_lerps.items():  # NOTE: could precompute
                 for key, vals in styles.items():      # these for performance
                     val = vals[i]
-                    cur[name][key] = val
-            yield cur  # ssh, don't tell the caller we're giving them the same
+                    cur[name].style[key] = val
+            yield cur  # sssh, don't tell the caller we're giving them the same
                        # group over and over :)
+
+        # replace the copied styles with their originals
+        # it's gonna suuuuuuuuuuuuuuuuuuuuuuuuuck having to do this for coords
+        for name, original_style in style_originals:
+            cur[name] = original_style
+
 
 _color_regex = re.compile(r"#[0123456789abcdefABCDEF]{6}")
 def _get_color_styles(style):

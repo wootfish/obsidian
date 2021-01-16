@@ -138,6 +138,8 @@ class Group(Shape):
         else:
             seen_names = set()
             for name in inner_iter():
+                if name in seen_names:
+                    raise AmbiguousNameError(f"duplicate name detected: {name} (pass ignore_duplicates=True to suppress this error)")
                 seen_names.add(name)
                 yield name
 

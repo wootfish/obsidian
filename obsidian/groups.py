@@ -121,14 +121,25 @@ class Group(Shape):
                 yield s
                 yield from s.subgroups()
 
-    def items(self):
+    def items(self, ignore_duplicates=False):
         """Iterates over named shapes in this group and its subgroups.
         Yields 2-tuples: (name, shape)
-        Raises AmbiguousNameError if duplicate names are detected."""
 
-        yield from self.named_shapes.items()
-        for group in self.subgroups():
-            yield from group.named_shapes.items()
+        Raises an AmbiguousNameError on duplicate names unless you pass
+        ignore_duplicates=True"""
+
+        def inner_iter():
+            yield from self.named_shapes.items()
+            for group in self.subgroups():
+                yield from group.named_shapes.items()
+
+        if ignore_duplicates:
+            yield from inner_iter()
+        else:
+            seen_names = set()
+            for name in inner_iter():
+                seen_names.add(name)
+                yield name
 
 
 @dataclass

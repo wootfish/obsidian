@@ -60,7 +60,7 @@ class Group(Shape):
         # check, then during name resolution)
         item = self.named_shapes.get(name)
         for group in self.subgroups():
-            if name not in group:
+            if name not in group.named_shapes:
                 continue
             if item is not None:
                 raise AmbiguousNameError(f"group contains multiple shapes named '{name}'")
@@ -70,8 +70,8 @@ class Group(Shape):
         return item
 
     def __contains__(self, name):
-        """note: unlike getitem, this does *not* check for duplicates of names (is this a problem?)"""
-        return name in self.named_shapes or any(name in shape for shape in self.shapes if isinstance(shape, Group))
+        return name in self.named_shapes \
+               or any(name in group.named_shapes for group in self.subgroups())
 
     @property
     def bounds(self):
@@ -115,20 +115,20 @@ class Group(Shape):
         return model
 
     def subgroups(self):
-        yield from (s for s in self.shapes if isinstance(s, Group))
+        """Yields groups contained within this group or its subgroups."""
+        for s in self.shapes:
+            if isinstance(s, Group):
+                yield s
+                yield from s.subgroups()
 
     def items(self):
         """Iterates over named shapes in this group and its subgroups.
         Yields 2-tuples: (name, shape)
         Raises AmbiguousNameError if duplicate names are detected."""
-        seen_names = set(self.named_shapes.keys())
+
         yield from self.named_shapes.items()
         for group in self.subgroups():
-            for name, shape in group.items():
-                if name in seen_names:
-                    raise AmbiguousNameError(f"duplicate name {name}")
-                seen_names.add(name)
-                yield (name, shape)
+            yield from group.named_shapes.items()
 
 
 @dataclass

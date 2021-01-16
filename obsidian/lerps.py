@@ -14,9 +14,13 @@ def _parse_color(c):  # c: str
             int(c[3:5], 16),
             int(c[5:7], 16))
 
+def _nf(n):
+    """Packs a number n to 2-digit hex, suitable for use in color codes."""
+    assert 0 <= n <= 255
+    return hex(n)[2:].rjust(2, '0')
+
 def _pack_color(c):  # c: Tuple[int]
-    r, g, b = c
-    return "#" + hex(r)[2:] + hex(g)[2:] + hex(b)[2:]
+    return "#" + ''.join(map(_nf, c))
 
 def lerp_floats(f1, f2, steps):
     """Interpolates from f1 to f2 over `steps` steps and returns a tuple

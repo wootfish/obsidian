@@ -137,11 +137,15 @@ class Group(Shape):
             yield from inner_iter()
         else:
             seen_names = set()
-            for name in inner_iter():
-                if name in seen_names:
-                    raise AmbiguousNameError(f"duplicate name detected: {name} (pass ignore_duplicates=True to suppress this error)")
-                seen_names.add(name)
-                yield name
+            for t in inner_iter():
+                if t[0] in seen_names:
+                    raise AmbiguousNameError(f"duplicate name detected: {t[0]} (pass ignore_duplicates=True to suppress this error)")
+                seen_names.add(t[0])
+                yield t
+
+    def rename(self, shape_name, new_name):
+        """Renames a named shape from `shape_name` to `new_name`."""
+        raise NotImplementedError()  # TODO
 
 
 @dataclass

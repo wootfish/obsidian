@@ -1,12 +1,12 @@
+from copy import copy
 from dataclasses import dataclass, fields
 from drawSvg import animate_video, animate_jupyter
 import re
 
-from copy import copy
-from canvas import render
-from fields import STYLE
-from groups import Group
-from lerps import lerp_colors
+from .canvas import render
+from .fields import STYLE
+from .groups import Group
+from .lerps import lerp_colors
 
 
 """
@@ -49,9 +49,8 @@ class Keyframe:
 
 
 class KeyframeAnimation:
-    def __init__(self, draw_func, framerate):
+    def __init__(self, draw_func):
         self.draw_func = draw_func  # must return a Group, NOT a Canvas or Drawing!!
-        self.framerate = framerate
         self._frame_num = 0
         self._keyframes = []
 
@@ -71,7 +70,7 @@ class KeyframeAnimation:
         with animate_jupyter() as anim:
             self._render(anim, *args, **kwargs)
 
-    def render_file(self, fname, *args, **kwargs):
+    def render_file(self, fname, framerate, *args, **kwargs):
         assert len(self._keyframes) > 0
         last_keyframe = self._keyframes[-1]
         duration = last_keyframe.frame_num / self.framerate
@@ -95,7 +94,7 @@ class KeyframeAnimation:
             nxt_num, nxt_group = nxt
 
             yield cur_group
-            yield from self._interpolate(cur, nxt, nxt_num-cur_num)
+            yield from self._interpolate(cur_group, nxt_group, nxt_num-cur_num)
         yield nxt_group
 
     def _interpolate(self, cur: Group, nxt: Group, steps: int):
@@ -105,7 +104,7 @@ class KeyframeAnimation:
         """
 
         style_originals = {}
-        style_lerps = {name: {} for name in cur.keys()}
+        style_lerps = {name: {} for name in cur.named_shapes.keys()}
 
         # precompute the lerps for each frame
         for name, cur_shape in cur.items():
@@ -118,9 +117,9 @@ class KeyframeAnimation:
             cur_shape.style = copy(cur_shape.style)  # (temporarily) replace style dict with shallow copy
 
             for prop in _get_color_styles(cur_shape.style):
-                assert prop in nxt_shape.styles  # or just continue?
-                c1 = cur_shape.styles[prop]
-                c2 = nxt_shape.styles[prop]
+                assert prop in nxt_shape.style  # or just continue?
+                c1 = cur_shape.style[prop]
+                c2 = nxt_shape.style[prop]
                 interp = lerp_colors(c1, c2, steps)
                 style_lerps[name][prop] = interp[1:-1]  # trim the endpoints
 
@@ -132,8 +131,8 @@ class KeyframeAnimation:
 
         # generate the frames
         for i in range(steps-1):
-            for name, styles in style_lerps.items():  # NOTE: could precompute
-                for key, vals in styles.items():      # these for performance
+            for name, style in style_lerps.items():  # NOTE: could precompute
+                for key, vals in style.items():      # these for performance
                     val = vals[i]
                     cur[name].style[key] = val
             yield cur  # sssh, don't tell the caller we're giving them the same
@@ -141,8 +140,8 @@ class KeyframeAnimation:
 
         # replace the copied styles with their originals
         # it's gonna suuuuuuuuuuuuuuuuuuuuuuuuuck having to do this for coords
-        for name, original_style in style_originals:
-            cur[name] = original_style
+        for name, original_style in style_originals.items():
+            cur[name].style = original_style
 
 
 _color_regex = re.compile(r"#[0123456789abcdefABCDEF]{6}")
@@ -150,4 +149,5 @@ def _get_color_styles(style):
     """Returns a tuple of keys from 'style' whose values look like hex
     colors."""
 
-    return tuple(key for key, val in style if _color_regex.fullmatch(val))
+    return tuple(key for key, val in style.items()
+                 if type(val) is str and _color_regex.fullmatch(val))

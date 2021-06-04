@@ -5,6 +5,10 @@ Obsidian is a constraint-based system for generating technical diagrams
 It lets you write terse, descriptive scripts which produce publication-quality
 vector or raster graphics.
 
+I've written a little bit about Obsidian's design and use
+[here](https://eli.sohl.com/2020/04/14/obsidian.html). A follow-up post focused
+on using Obsidian for technical drawing is forthcoming.
+
 The design and API are partly inspired by [this blog post](https://www.anishathalye.com/2019/12/12/constraint-based-graphic-design/)
 on an interesting (but unfortunately closed-source, and possibly abandoned)
 constraint-based graphic design tool.
@@ -16,9 +20,10 @@ Obsidian currently only targets Python 3.7. This is because it depends on
 issues on 3.8 or later).
 
 You will also need Cairo. Depending on your platform this can be installed with
-`sudo apt install libcairo2`, `brew install cairo`, or similar.
+`apt install libcairo2`, `dnf install cairo-devel` `brew install cairo`, or
+similar.
 
-Obsidian is still under heavy development, so I haven't put it on PyPI yet.
+Obsidian's API is not even close to stable, so I haven't put it on PyPI yet.
 
 Dev setup instructions:
 
@@ -26,7 +31,7 @@ Dev setup instructions:
 $ git clone git@github.com:wootfish/obsidian.git
 $ cd obsidian
 $ python3.7 -m venv venv
-$ source venv/bin/activate
+$ source venv/bin/activate   # or activate.zsh, activate.fish, etc
 (venv) $ pip install -e .
 (venv) $ pysmt-install --z3
 ```
